@@ -20,7 +20,7 @@ describe('the unit tests', () => {
     beforeAll(() => {
         // Citation: https://levelup.gitconnected.com/how-to-unit-test-html-and-vanilla-javascript-without-a-ui-framework-c4c89c9f5e56
         theDom = new JSDOM(html, dangerousParam)
-        theWindow = theDom.window;
+        // theWindow = theDom.window;
 
         document.documentElement.innerHTML = html.toString();
         fetchMock.enableMocks();
@@ -40,14 +40,14 @@ describe('the unit tests', () => {
     describe('the necessary components are present', () => {
         it('should have the buttons', () => {
             const buttonList = ['submitButton', 'disable-alarm', 'debug-0600', 'debug-1800', 'debug-now', 'debug-now-plus-2'];
-            buttonList.forEach(value =>  {
+            buttonList.forEach(value => {
                 expect(getHelperByDom(value)).toBeTruthy();
                 expect(getHelper(value)).toBeInstanceOf(HTMLButtonElement);
             });
         });
         it('should have the text areas', () => {
             const textAreaList = ['submit-text', 'alarm-time-text'];
-            textAreaList.forEach(value =>  {
+            textAreaList.forEach(value => {
                 expect(getHelperByDom(value)).toBeTruthy();
                 expect(getHelper(value)).toBeInstanceOf(HTMLTextAreaElement);
             });
@@ -65,11 +65,12 @@ describe('the unit tests', () => {
         });
 
         it('should update the time displayed to the user when Debug plus 2 clicked', () => {
+            const EXTRA_MINUTES = 2;
             fetchMock.once("ok");
             const debugPlus2Button = getHelperByDom('debug-now-plus-2');
             debugPlus2Button.click();
             let d = new Date();
-            d.setTime(d.getTime() + (2 * 60 * 1000));
+            d.setTime(d.getTime() + (EXTRA_MINUTES * 60 * 1000));
             expect(getHelperByDom('alarm-time-text').value)
                 .toBe(d.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'}));
         });
@@ -78,8 +79,6 @@ describe('the unit tests', () => {
             fetchMock.once("ok");
             const debug0600 = getHelperByDom('debug-0600');
             debug0600.click();
-            let d = new Date();
-            d.setTime(d.getTime() + (2 * 60 * 1000));
             expect(getHelperByDom('alarm-time-text').value).toBe('06:00');
         });
 
@@ -87,19 +86,17 @@ describe('the unit tests', () => {
             fetchMock.once("ok");
             const debug1800 = getHelperByDom('debug-1800');
             debug1800.click();
-            let d = new Date();
-            d.setTime(d.getTime() + (2 * 60 * 1000));
             expect(getHelperByDom('alarm-time-text').value).toBe('18:00');
         });
 
         it('should update the time displayed to the user when user entered time submitted', () => {
+            const TIME_STRING = '13:57';
             fetchMock.once("ok");
             const submitButton = getHelperByDom('submitButton');
             const timeInput = getHelperByDom('time-selector');
-
-            timeInput.value = '13:57';
+            timeInput.value = TIME_STRING;
             submitButton.click();
-            expect(getHelperByDom('alarm-time-text').value).toBe('13:57');
+            expect(getHelperByDom('alarm-time-text').value).toBe(TIME_STRING);
         });
 
         it('should turn the alarm off when turn alarm off button clicked', () => {
@@ -108,12 +105,13 @@ describe('the unit tests', () => {
             disableButton.click();
             expect(getHelperByDom('alarm-time-text').value).toBe('--:--');
             expect(getHelperByDom('submit-text').value).toBe('Alarm set off');
+            // console.log(theDom.getInternalVMContext()._globalProxy);
         });
 
     });
 
     function getHelperByDom(s) {
-        return theWindow.document.getElementById(s);
+        return theDom.window.document.getElementById(s);
     }
 
     function getHelper(s) {
