@@ -11,8 +11,6 @@ before_install:
   - node --version
 install:
   - npm install
-before_script:
-  - ng build
 script:
   - ls -al
   - npm run test
