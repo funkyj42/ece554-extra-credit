@@ -13,6 +13,3 @@ install:
   - npm install
 script:
   - npm run test
-#  - npm run single-test
-#  - ng e2e
-#  - npm t --browsers=ChromeHeadlessNoSandbox
